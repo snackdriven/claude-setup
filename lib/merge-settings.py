@@ -43,7 +43,16 @@ def main():
             print(f"settings.json is malformed: {e}", file=sys.stderr)
             sys.exit(1)
 
-    patch = json.loads(patch_path.read_text())
+    try:
+        patch = json.loads(patch_path.read_text())
+    except json.JSONDecodeError as e:
+        print(f"patch file is malformed: {e}", file=sys.stderr)
+        sys.exit(1)
+    if not isinstance(patch, dict):
+        print(f"patch file must be a JSON object, got {type(patch).__name__}", file=sys.stderr)
+        sys.exit(1)
+    if not isinstance(base, dict):
+        base = {}
     merged = deep_merge(base, patch)
 
     settings_path.parent.mkdir(parents=True, exist_ok=True)

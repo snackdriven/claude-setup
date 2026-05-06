@@ -20,11 +20,11 @@ if [[ "$PROFILE" == "--list" ]]; then
   exit 0
 fi
 
-if ! jq -e ".profiles[\"$PROFILE\"]" "$MANIFEST" >/dev/null 2>&1; then
+if ! jq -e --arg p "$PROFILE" '.profiles[$p]' "$MANIFEST" >/dev/null 2>&1; then
   err "Unknown profile: $PROFILE. Run './install.sh --list' to see options."
 fi
 
-components=$(jq -r ".profiles[\"$PROFILE\"].components[]" "$MANIFEST")
+components=$(jq -r --arg p "$PROFILE" '.profiles[$p].components[]' "$MANIFEST")
 
 log "Installing profile: $PROFILE"
 log "Components: $(echo "$components" | tr '\n' ' ')"
@@ -66,7 +66,7 @@ if [[ -f "$SETTINGS" ]]; then
   current=$(jq -r '.statusLine // ""' "$SETTINGS" 2>/dev/null || echo "")
   if [[ "$current" != "$STATUS_CMD" ]]; then
     log "settings.json: writing statusLine …"
-    tmp=$(mktemp)
+    tmp=$(mktemp "${SETTINGS}.tmp.XXXXXX")
     jq --arg cmd "$STATUS_CMD" '.statusLine = $cmd' "$SETTINGS" > "$tmp" && mv "$tmp" "$SETTINGS"
     ok "settings.json updated"
   else
