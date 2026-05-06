@@ -13,11 +13,48 @@ import os
 from pathlib import Path
 
 
+def _hook_command_keys(items):
+    """Return command strings if list looks like a settings.json hooks block.
+
+    A hooks block is a list of {"matcher": ..., "hooks": [{"command": ...}, ...]}
+    entries. Returns None for any other list shape so the caller falls back to
+    plain overwrite semantics.
+    """
+    if not isinstance(items, list) or not items:
+        return None
+    cmds = []
+    for it in items:
+        if not isinstance(it, dict):
+            return None
+        inner = it.get("hooks")
+        if not isinstance(inner, list):
+            return None
+        for h in inner:
+            if isinstance(h, dict) and "command" in h:
+                cmds.append(h["command"])
+    return cmds
+
+
 def deep_merge(base: dict, patch: dict) -> dict:
     result = dict(base)
     for key, val in patch.items():
         if key in result and isinstance(result[key], dict) and isinstance(val, dict):
             result[key] = deep_merge(result[key], val)
+        elif key in result and isinstance(result[key], list) and isinstance(val, list):
+            base_cmds = _hook_command_keys(result[key])
+            patch_cmds = _hook_command_keys(val)
+            if base_cmds is not None and patch_cmds is not None:
+                # Hook-shaped lists: dedupe-append by command so existing user
+                # hooks survive when a component patches in its own.
+                merged = list(result[key])
+                seen = set(base_cmds)
+                for item, cmd in zip(val, patch_cmds):
+                    if cmd not in seen:
+                        merged.append(item)
+                        seen.add(cmd)
+                result[key] = merged
+            else:
+                result[key] = val
         else:
             result[key] = val
     return result

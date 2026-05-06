@@ -5,7 +5,7 @@
       "repo": "https://github.com/snackdriven/better-buddy.git",
       "installer": "scripts/install.sh",
       "description": "Virtual companion buddy + buddy-status.sh shim",
-      "provides": ["~/.claude/buddy.json", "~/.claude/buddy-status.sh"]
+      "provides": ["~/.claude/commands/buddy.md", "~/.claude/buddy-status.sh", "~/.claude/buddy-hook.sh", "~/.claude/buddy-stop.sh"]
     },
     "claude-statusline": {
       "repo": "https://github.com/snackdriven/claude-statusline.git",
@@ -21,8 +21,7 @@
     },
     "operator-core-mini": {
       "repo": "https://github.com/snackdriven/operator-core-mini.git",
-      "installer": "install.sh",
-      "description": "Three-layer memory system (Backpack/Doctrine/Hoard)",
+      "description": "Three-layer memory system (Backpack/Doctrine/Hoard) — no installer; clone-only for now",
       "provides": ["~/.memory-keeper/"]
     }
   },
