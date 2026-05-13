@@ -62,4 +62,15 @@ fi
   fi
 } >> "$MARKER"
 
+# 3. macOS banner — push the failure to her in real time. Best-effort, silent
+#    fallback if osascript is unavailable or DND is on.
+if command -v osascript >/dev/null 2>&1; then
+  osascript -e "display notification \"rc=$RC — see $ERR_LOG\" with title \"⚠ launchd: $JOB failed\"" 2>/dev/null || true
+fi
+
+# 4. Drop a marker file the next Claude session can surface on SessionStart.
+#    Single-line JSON so any hook can parse it without jq.
+printf '{"job":"%s","rc":%s,"ts":"%s","err_log":"%s"}\n' \
+  "$JOB" "$RC" "$TS" "$ERR_LOG" > "$HOME/.claude/.last-cron-failure.json"
+
 exit 0
