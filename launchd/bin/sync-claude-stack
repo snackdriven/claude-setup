@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+# sync-claude-stack — pull --ff-only across the local dev clones for the
+# Claude companion stack. Skips repos that aren't cloned locally.
+set -u
+
+PROJECTS="$HOME/Desktop/projects"
+REPOS=(claude-statusline better-buddy operator-core-mini claude-setup scratch-pad)
+
+failed=()
+for r in "${REPOS[@]}"; do
+  dir="$PROJECTS/$r"
+  if [[ ! -d "$dir/.git" ]]; then
+    printf '  -  %-22s (not cloned, skip)\n' "$r"
+    continue
+  fi
+  if out=$(git -C "$dir" pull --ff-only 2>&1); then
+    printf '  ✓  %-22s %s\n' "$r" "$(echo "$out" | tail -1)"
+  else
+    printf '  ✗  %-22s %s\n' "$r" "$(echo "$out" | tail -1)"
+    failed+=("$r")
+  fi
+done
+
+(( ${#failed[@]} > 0 )) && exit 1 || exit 0
