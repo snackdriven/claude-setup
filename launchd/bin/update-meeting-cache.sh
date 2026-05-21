@@ -472,16 +472,16 @@ END {
         month_name = months[month+0]
         sub(/^[^A-Za-z0-9]+/, "", next_summary)
 
-        if (length(next_summary) > 25) {
-            truncated = substr(next_summary, 1, 22)
+        if (length(next_summary) > 50) {
+            truncated = substr(next_summary, 1, 47)
             last_space = 0
-            for (i = 22; i >= 1; i--) {
+            for (i = 47; i >= 1; i--) {
                 if (substr(next_summary, i, 1) == " ") {
                     last_space = i
                     break
                 }
             }
-            if (last_space > 10) {
+            if (last_space > 20) {
                 next_summary = substr(next_summary, 1, last_space - 1) "..."
             } else {
                 next_summary = truncated "..."
