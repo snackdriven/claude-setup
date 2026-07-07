@@ -1,6 +1,15 @@
 {
   "version": "1",
   "components": {
+    "claude-commands": {
+      "repo": "https://github.com/snackdriven/claude-commands.git",
+      "installer": "install.sh",
+      "description": "Personal command + agent library — symlinks into ~/.claude",
+      "provides": [
+        "~/.claude/commands/*",
+        "~/.claude/agents/*"
+      ]
+    },
     "better-buddy": {
       "repo": "https://github.com/snackdriven/better-buddy.git",
       "installer": "scripts/install.sh",
@@ -40,6 +49,7 @@
   "profiles": {
     "companion": {
       "components": [
+        "claude-commands",
         "better-buddy",
         "claude-statusline"
       ],
@@ -47,6 +57,7 @@
     },
     "qa": {
       "components": [
+        "claude-commands",
         "better-buddy",
         "claude-statusline",
         "scratch-pad"
@@ -55,6 +66,7 @@
     },
     "full": {
       "components": [
+        "claude-commands",
         "better-buddy",
         "claude-statusline",
         "scratch-pad",

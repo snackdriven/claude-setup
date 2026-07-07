@@ -43,6 +43,27 @@ log "Installing profile: $PROFILE"
 log "Components: $(echo "$components" | tr '\n' ' ')"
 echo ""
 
+mkdir -p "$HOME/.claude"
+
+# --- bootstrap: make ~/.claude a dotclaude checkout if it isn't one ---
+DOTCLAUDE_REPO="https://github.com/snackdriven/dotclaude.git"
+if [[ ! -d "$HOME/.claude/.git" ]]; then
+  if [[ -n "$(ls -A "$HOME/.claude" 2>/dev/null)" ]]; then
+    log "wiring dotclaude into existing ~/.claude (non-destructive)…"
+    if git -C "$HOME/.claude" init -q -b main \
+       && { git -C "$HOME/.claude" remote add origin "$DOTCLAUDE_REPO" 2>/dev/null || git -C "$HOME/.claude" remote set-url origin "$DOTCLAUDE_REPO"; } \
+       && git -C "$HOME/.claude" fetch -q origin \
+       && git -C "$HOME/.claude" reset -q origin/main; then
+      git -C "$HOME/.claude" ls-files -z --deleted | xargs -0 -r -I{} git -C "$HOME/.claude" checkout -- {} 2>/dev/null || true
+      ok "dotclaude wired into ~/.claude"
+    else
+      warn "dotclaude bootstrap failed (auth gh first?) — continuing"
+    fi
+  else
+    git clone -q "$DOTCLAUDE_REPO" "$HOME/.claude" && ok "dotclaude cloned → ~/.claude" || warn "dotclaude clone failed (auth gh first?) — continuing"
+  fi
+fi
+
 WORK_DIR="$(mktemp -d)"
 trap 'rm -rf "$WORK_DIR"' EXIT
 
