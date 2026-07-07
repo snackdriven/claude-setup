@@ -2,6 +2,16 @@
 
 All notable changes, reconstructed from git history on 2026-06-16 (no prior changelog existed). Format loosely follows [Keep a Changelog](https://keepachangelog.com/).
 
+## 2026-07-07
+
+### Added
+- Linux/WSL support for the companion toolstack. `install.sh` gained a dependency preflight (`jq`/`git`/`python3`) with an OS-aware install hint, and creates `~/.claude` before writing settings. README documents platform support + requirements.
+
+### Changed
+- `launchd/install.sh` detects non-macOS hosts (Linux/WSL) and skips cleanly instead of crashing on `launchctl` — the launchd fleet stays macOS-only. It also `sed`-substitutes the hardcoded `/Users/kayla` in each plist for the current user's `$HOME` on deploy (closes the long-standing "needs a sed pass" gap, portable across mac accounts).
+- `launchd/bin/health-check.sh`: guard the `launchctl list` block behind a `command -v` check (no-ops on non-macOS).
+- `launchd/bin/memory-keeper-backup.sh`: `$HOME`-relative error-log path in the failure trap instead of hardcoded `/Users/kayla`.
+
 ## 2026-05-21
 
 ### Changed
