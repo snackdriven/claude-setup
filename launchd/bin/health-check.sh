@@ -52,12 +52,16 @@ else
 fi
 
 bold "─── launchd (com.snackdriven.*) ───"
-launchctl list 2>/dev/null | awk '
-  /com\.snackdriven/ {
-    if ($2 == "0") printf "  ✓ %s\n", $3
-    else           printf "  ✗ %s (last exit=%s)\n", $3, $2
-  }
-'
+if command -v launchctl >/dev/null 2>&1; then
+  launchctl list 2>/dev/null | awk '
+    /com\.snackdriven/ {
+      if ($2 == "0") printf "  ✓ %s\n", $3
+      else           printf "  ✗ %s (last exit=%s)\n", $3, $2
+    }
+  '
+else
+  dim "launchctl not present (non-macOS) — scheduled jobs not managed by launchd here"
+fi
 
 bold "─── cron-failures since last check ───"
 FAILLOG=~/.claude/logs/cron-failures.log

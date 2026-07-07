@@ -46,9 +46,13 @@ launchd-spawned bash can't execute scripts under `~/Desktop/` without TCC Full D
 
 Copies `bin/*` → `~/.local/bin/`, plists → `~/Library/LaunchAgents/`, and `launchctl bootstrap`s each job. Idempotent — re-run any time you edit a wrapper or plist.
 
+## Platform
+
+launchd is macOS-only. On **Linux / WSL**, `install.sh` detects the non-macOS host and skips (exit 0) — there's no `launchctl` or `~/Library/LaunchAgents` to bootstrap into. The wrappers in `bin/` are portable bash; run them by hand or wire them into cron / systemd user timers if you want them scheduled. (Most are bound to `~/Desktop/personal` paths, so they no-op off Kayla's machine.)
+
 ## Hardcoded paths
 
-Plists reference `/Users/kayla/...` paths directly (launchd doesn't expand env vars). Wrappers use `$HOME` / `~` and are portable. If anyone else ever uses this, the plists need a sed pass over `/Users/kayla` → their `$HOME`.
+Plists reference `/Users/kayla/...` paths directly (launchd doesn't expand env vars). `install.sh` now runs a `sed` pass over `/Users/kayla` → the current user's `$HOME` when it deploys each plist, so they're portable across mac accounts. Wrappers use `$HOME` / `~` and are portable as-is.
 
 ## Logs
 

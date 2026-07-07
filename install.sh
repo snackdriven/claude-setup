@@ -14,6 +14,19 @@ ok()   { printf '\033[32m✓\033[0m %s\n' "$*"; }
 warn() { printf '\033[33m⚠\033[0m %s\n' "$*"; }
 err()  { printf '\033[31m✗\033[0m %s\n' "$*" >&2; exit 1; }
 
+# --- dependency preflight (portable: macOS + Linux/WSL) ---
+missing=()
+for dep in jq git python3; do
+  command -v "$dep" >/dev/null 2>&1 || missing+=("$dep")
+done
+if [[ ${#missing[@]} -gt 0 ]]; then
+  case "$(uname -s)" in
+    Darwin) hint="brew install ${missing[*]}" ;;
+    *)      hint="sudo apt install ${missing[*]}   # or your distro's package manager" ;;
+  esac
+  err "Missing required tools: ${missing[*]}. Install them first, e.g.:  $hint"
+fi
+
 if [[ "$PROFILE" == "--list" ]]; then
   log "Available profiles:"
   jq -r '.profiles | to_entries[] | "  \(.key)  —  \(.value.description)"' "$MANIFEST"
@@ -59,6 +72,7 @@ while IFS= read -r comp; do
 done <<< "$components"
 
 # One atomic settings.json write — merge statusLine key
+mkdir -p "$HOME/.claude"
 SETTINGS="$HOME/.claude/settings.json"
 STATUS_CMD="bash $HOME/.claude/buddy-status.sh"
 

@@ -10,6 +10,24 @@
 set -euo pipefail
 
 HERE="$(cd "$(dirname "$0")" && pwd)"
+
+# launchd is macOS-only. On Linux/WSL there's no launchctl / LaunchAgents, so
+# the scheduled fleet can't be bootstrapped here. Skip cleanly (exit 0) rather
+# than crash — the companion toolstack installs fine via the root ./install.sh.
+if [[ "$(uname -s)" != "Darwin" ]]; then
+  if grep -qiE 'microsoft|wsl' /proc/version 2>/dev/null || [[ -n "${WSL_DISTRO_NAME:-}" ]]; then
+    plat="WSL"
+  else
+    plat="Linux"
+  fi
+  echo "→ Detected $plat — skipping launchd job install (macOS-only)."
+  echo "  The scheduled jobs use macOS launchd, which doesn't exist on $plat."
+  echo "  The wrapper scripts in launchd/bin/ are portable bash — run them by hand,"
+  echo "  or wire them into cron / systemd user timers if you want them scheduled."
+  echo "  (Most jobs are bound to ~/Desktop/personal paths, so they no-op elsewhere.)"
+  exit 0
+fi
+
 BIN_DIR="$HOME/.local/bin"
 LAUNCHD_DIR="$HOME/Library/LaunchAgents"
 
@@ -44,7 +62,9 @@ for p in "$HERE"/plists/*.plist; do
   # Unload existing first (ignore "not loaded" errors)
   launchctl bootout "$GUI_TARGET" "$dst" 2>/dev/null || true
 
-  cp "$p" "$dst"
+  # launchd doesn't expand env vars in plists, so substitute the canonical
+  # home for the current user's $HOME (portable across mac accounts).
+  sed "s#/Users/kayla#$HOME#g" "$p" > "$dst"
   launchctl bootstrap "$GUI_TARGET" "$dst"
   echo "  ✓ $label"
 done

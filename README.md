@@ -4,6 +4,18 @@ Personal Claude Code toolstack installer. Pulls each component from GitHub, runs
 
 No auto-update — just run it again when you want to pick up changes. All the component installers overwrite files in `~/.claude/` so reinstalling is safe.
 
+## Requirements
+
+`jq`, `git`, and `python3` on PATH. `install.sh` checks for these up front and prints an install hint if any are missing.
+
+- macOS: `brew install jq git python3`
+- Debian/Ubuntu (incl. WSL): `sudo apt install jq git python3`
+
+## Platform support
+
+- **macOS** — full stack, including the scheduled `launchd` jobs.
+- **Linux / WSL** — the companion toolstack (buddy, statusline, scratch-pad, memory system) installs and runs. The **scheduled `launchd` fleet is macOS-only**: `launchd/install.sh` detects a non-macOS host and skips cleanly instead of erroring. The wrapper scripts in `launchd/bin/` are portable bash if you want to wire them into cron or systemd user timers yourself (note most are bound to `~/Desktop/personal` paths, so they no-op off Kayla's machine). See [`launchd/README.md`](launchd/README.md).
+
 ## Usage
 
 ```bash

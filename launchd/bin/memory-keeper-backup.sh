@@ -5,7 +5,7 @@
 set -euo pipefail
 
 JOB_NAME="memory-keeper-backup"
-trap 'rc=$?; [ $rc -ne 0 ] && ~/.local/bin/cron-alert.sh "'"$JOB_NAME"'" $rc "/Users/kayla/mcp-data/memory-keeper-backup/backup.err"; exit $rc' EXIT
+trap 'rc=$?; [ $rc -ne 0 ] && ~/.local/bin/cron-alert.sh "'"$JOB_NAME"'" $rc "$HOME/mcp-data/memory-keeper-backup/backup.err"; exit $rc' EXIT
 
 DB=~/mcp-data/memory-keeper/context.db
 REPO=~/mcp-data/memory-keeper-backup
