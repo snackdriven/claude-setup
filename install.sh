@@ -74,7 +74,7 @@ done <<< "$components"
 # One atomic settings.json write — merge statusLine key
 mkdir -p "$HOME/.claude"
 SETTINGS="$HOME/.claude/settings.json"
-STATUS_CMD="bash $HOME/.claude/buddy-status.sh"
+STATUS_CMD="bash $HOME/.claude/statusline.sh"
 
 if [[ -f "$SETTINGS" ]]; then
   current=$(jq -r '.statusLine // ""' "$SETTINGS" 2>/dev/null || echo "")
