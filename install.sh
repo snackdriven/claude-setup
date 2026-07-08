@@ -194,18 +194,18 @@ SETTINGS="$HOME/.claude/settings.json"
 STATUS_CMD="bash $HOME/.claude/statusline.sh"
 
 if [[ -f "$SETTINGS" ]]; then
-  current=$(jq -r '.statusLine // ""' "$SETTINGS" 2>/dev/null || echo "")
+  current=$(jq -r '.statusLine.command // .statusLine // ""' "$SETTINGS" 2>/dev/null || echo "")
   if [[ "$current" != "$STATUS_CMD" ]]; then
     log "settings.json: writing statusLine …"
     tmp=$(mktemp "${SETTINGS}.tmp.XXXXXX")
-    jq --arg cmd "$STATUS_CMD" '.statusLine = $cmd' "$SETTINGS" > "$tmp" && mv "$tmp" "$SETTINGS"
+    jq --arg cmd "$STATUS_CMD" '.statusLine = {type:"command", command:$cmd}' "$SETTINGS" > "$tmp" && mv "$tmp" "$SETTINGS"
     ok "settings.json updated"
   else
     ok "settings.json already correct"
   fi
 else
   log "settings.json: creating …"
-  jq -n --arg cmd "$STATUS_CMD" '{statusLine: $cmd}' > "$SETTINGS"
+  jq -n --arg cmd "$STATUS_CMD" '{statusLine: {type:"command", command:$cmd}}' > "$SETTINGS"
   ok "settings.json created"
 fi
 
