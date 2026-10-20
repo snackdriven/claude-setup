@@ -65,3 +65,7 @@ A separate helper for applying a JSON patch to `~/.claude/settings.json`. It mer
 ```bash
 python3 lib/merge-settings.py patch.json
 ```
+
+## Commits and releases
+
+See [RELEASE.md](RELEASE.md) for Commitizen commands, SemVer and changelog maintenance.
